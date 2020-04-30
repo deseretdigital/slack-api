@@ -52,7 +52,7 @@ router.get('/', async function (ctx) {
   ctx.state.response.status = 200
   ctx.state.response.body = {
     message:
-      'Welcome to the optimizely feature flag api microservice. Create a full stack account and some feature flags to start using me.'
+      'Welcome to the slack api microservice.'
   }
 })
 

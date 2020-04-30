@@ -19,7 +19,7 @@ There are only 2 endpoints
 {
     "data": {
         message:
-          'Welcome to the optimizely feature flag api microservice. Create a full stack account and some feature flags to start using me.'
+          'Welcome to the slack api microservice.'
     }
 }
 ```

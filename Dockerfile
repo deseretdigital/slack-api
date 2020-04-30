@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y apache2 \
  && apt-get clean \
  && apt-get autoremove
 
-WORKDIR /var/www/feature-flags
+WORKDIR /var/www/slack
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
 RUN sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger buster main > /etc/apt/sources.list.d/passenger.list'
 
@@ -23,13 +23,13 @@ RUN npm install
 COPY . .
 
 # Copy over the apache configuration file and enable the site
-COPY ./conf/feature-flags.conf /etc/apache2/sites-available/feature-flags.conf
+COPY ./conf/slack.conf /etc/apache2/sites-available/slack.conf
 RUN a2enmod passenger
 RUN apache2ctl restart
 RUN /usr/bin/passenger-config validate-install
 
 RUN a2dissite 000-default.conf
-RUN a2ensite feature-flags.conf
+RUN a2ensite slack.conf
 
 EXPOSE 80
 
