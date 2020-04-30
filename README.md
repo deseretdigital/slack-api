@@ -27,5 +27,4 @@ There are only 2 endpoints
 ```
 {
     "data": {...slackresponse}
-    }
 }
