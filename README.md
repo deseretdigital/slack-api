@@ -18,8 +18,7 @@ There are only 2 endpoints
 ```
 {
     "data": {
-        message:
-          'Welcome to the slack api microservice.'
+        message: 'Welcome to the slack api microservice.'
     }
 }
 ```
