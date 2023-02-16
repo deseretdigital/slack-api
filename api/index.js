@@ -3,7 +3,9 @@ const Router = require('@koa/router')
 const bodyParser = require('koa-bodyparser')
 const logger = require('koa-logger')
 const cors = require('@koa/cors')
-const fetch = require('node-fetch')
+const LogClass = require('./logger')
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args))
+const log = new LogClass()
 const {
   JSONAPI_CONTENT_TYPE,
   SLACK_BOT_TOKEN_HEADER,
@@ -19,7 +21,7 @@ app.use(bodyParser({
   }
 }))
 app.use(cors())
-app.use(logger())
+app.use(logger((str, [weirdstr, ...args]) => log.shorthand(str, args)))
 app.use(jsonapi())
 
 /**
@@ -97,4 +99,4 @@ app
   .use(router.routes())
   .use(router.allowedMethods());
 
-app.listen(3001)
+app.listen(3000)

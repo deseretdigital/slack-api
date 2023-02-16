@@ -1,36 +1,24 @@
-FROM debian:buster
+FROM node:latest AS build
 
-RUN apt-get update -y && apt-get install -y curl software-properties-common wget
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt-get update && apt-get install -y apache2 \
-    dirmngr \
-    gnupg \
-    apt-transport-https \
-    ca-certificates \
-    nodejs \
-    libapache2-mod-passenger \
-    vim \
- && apt-get clean \
- && apt-get autoremove
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init \
+    && apt-get clean \
+    && apt-get autoremove
 
-WORKDIR /var/www/slack
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
-RUN sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger buster main > /etc/apt/sources.list.d/passenger.list'
+WORKDIR /usr/src/app
 
-# COPY ./api /var/www/marketplace-url-to-pdf/api/
-COPY package*.json ./
-RUN npm install
-COPY . .
+COPY package*.json /usr/src/app/
 
-# Copy over the apache configuration file and enable the site
-COPY ./conf/slack.conf /etc/apache2/sites-available/slack.conf
-RUN a2enmod passenger
-RUN apache2ctl restart
-RUN /usr/bin/passenger-config validate-install
+RUN npm ci --only=production
 
-RUN a2dissite 000-default.conf
-RUN a2ensite slack.conf
+FROM node:19.6-bullseye-slim@sha256:34211d15e360eff92c17587ff3c3d3bea3061ca3961f745fd59ab30bda954ff9
+ENV NODE_ENV production
 
-EXPOSE 80
+COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
+USER node
+WORKDIR /usr/src/app
+COPY --chown=node:node --from=build /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=node:node . /usr/src/app
 
-CMD  /usr/sbin/apache2ctl -D FOREGROUND
+EXPOSE 3000
+
+CMD ["dumb-init", "node", "api/index.js"]
